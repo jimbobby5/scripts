@@ -1,8 +1,8 @@
 # Enable long-path and restart: https://mspoweruser.com/ntfs-260-character-windows-10/
 
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-choco install golang
-choco install git
+choco install golang -y
+choco install git -y
 
 # RESTART POWERSHELL
 
