@@ -11,6 +11,7 @@ git config --global user.name "Username"
 
 # NOTE! Dependency restoration may change in different versions of Telegraf. Currently using GDM + Dep
 
+$GO_BIN="C:\Users\$env:USERNAME\go\bin"
 $GO_SRC="C:\Users\$env:USERNAME\go\src"
 $BASE_BUILD_TAG="1.9.0"
 
@@ -52,9 +53,18 @@ $OPEN_TSDB_OUTPUT=".\plugins\outputs\opentsdb\opentsdb.go"
 git add $OPEN_TSDB_OUTPUT
 git commit -m "GR: Lower-case all metrics"
 
+# Manually lower-case santized metric in Prometheus output 
+$PROMETHEUS_OUTPUT=".\plugins\outputs\prometheus_client\prometheus_client.go"
+(gc $PROMETHEUS_OUTPUT) -Replace("invalidNameCharRE.ReplaceAllString\(value, ""_""\)",
+"strings.ToLower(invalidNameCharRE.ReplaceAllString(value, ""_""))"
+) | set-content $PROMETHEUS_OUTPUT
+git add $PROMETHEUS_OUTPUT
+git commit -m "GR: Lower-case prometheus metrics"
+
 # Restore dependencies and compile
-gdm restore -v
-dep ensure -vendor-only -v
+# TODO: Fix gdm restore location
+$GO_BIN\gdm restore -v
+$GO_BIN\dep ensure -vendor-only -v
 
 go build -ldflags="-X main.version=$BASE_BUILD_TAG-GR -X main.commit=$PARENT_COMMIT -X main.branch=$BASE_BUILD_TAG" cmd\telegraf\telegraf.go
 .\telegraf --version
